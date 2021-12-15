@@ -56,14 +56,28 @@ if (typeof SpeechRecognition === "undefined") {
 function process(rawText){
     //let text = rawText.replace(/\s/g, "");
     let text = rawText.toLowerCase();
-    let response = null;
-    if(text.includes("what time is it")){
+    var response = null;
+
+    if (text.replace(/\s/g, "") == "stop" || text.replace(/\s/g, "") == "quit" || text.replace(/\s/g, "") == "bye"){
+        response = "Bye!!!";
+		window.close();
+    }else if(text.includes("what time is it")){
         response = new Date().toLocaleTimeString([],{hour: '2-digit', minute: '2-digit' });
-    }else if (text.includes("hello")){
+    }else if(text.includes("weather")) {
+		response = fetch("http://api.weatherapi.com/v1/current.json?key=61f7e164893c46879ba02838211312&q=27606&aqi=yes").then(
+			value => { 
+				value.json().then(weather => {
+				const {temp_f : temp, feelslike_f : feelsLike} =  weather.current
+				const {name : city, region} =  weather.location
+				return `The current tempature in ${city}, ${region} is ${temp}, but it feels like ${feelsLike}.`
+			})	
+		})
+	}else if (text.includes("hello")){
         response = "Hi, how are you doing?"
     }else {
         window.open(`http://google.com/search?q=${rawText.replace("search", "")}`, "_blank");
-        return `I found some information for ${rawText}`;
+        response = `I found some information for ${rawText}`;
     }
+	toggleBtn();
     return response
 }
